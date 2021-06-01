@@ -1,3 +1,5 @@
+import { v4 as uuid } from 'uuid';
+
 export class Result {
     data: any
     message: string = ''
@@ -31,7 +33,7 @@ export enum Role {
 }
 
 export class User {
-    id: string = ""
+    id: string = uuid()
     username: string
     password: string = ""
     expiredAt: number = new Date().getTime()
@@ -43,7 +45,7 @@ export class User {
 }
 
 export class Product {
-    id: string = ""
+    id: string = uuid()
     name: string
     quantity: number
     price: number
@@ -53,5 +55,31 @@ export class Product {
         this.name = name
         this.quantity = quantity
         this.price = price
+    }
+}
+
+export class ItemCartBulk {
+    added: ItemCart[] = []
+    removed: ItemCart[] = []
+}
+
+export class ItemCart {
+    productId: string
+    quantity: number
+    sellerId: string
+    constructor(productId: string, quantity: number, sellerId: string) {
+        this.productId = productId
+        this.quantity = quantity
+        this.sellerId = sellerId
+    }
+}
+
+export class Cart {
+    id: string = uuid()
+    customerId: string
+    items: ItemCart[]
+    constructor(customerId: string, items: ItemCart[]) {
+        this.customerId = customerId
+        this.items = items
     }
 }

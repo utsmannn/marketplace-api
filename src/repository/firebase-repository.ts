@@ -1,39 +1,48 @@
 import axios from 'axios';
+import { definable } from '../helper/validator';
+
 require('dotenv').config()
 
 function baseUrl(route: string): string {
-    return 'https://' + process.env.FIREBASE_ID + '.firebaseio.com/' + route + '.json?print=pretty'
+    const url = 'https://' + process.env.FIREBASE_ID + '.firebaseio.com/' + route
+    console.log(url)
+    return url
 }
 
 export class FirebaseRepository {
     async push<T>(route: string, param: any | null): Promise<T> {
         return new Promise<T>(async (resolve, reject) => {
             try {
-                const data = await axios.post<T>(baseUrl(route), param)
-                resolve(data.data)
-            } catch (error) {
-                reject(error)
-            }
-        })
-    }
-
-    async update<T>(route: string, param: any | null): Promise<T> {
-        return new Promise<T>(async (resolve, reject) => {
-            try {
                 const data = await axios.patch<T>(baseUrl(route), param)
                 resolve(data.data)
             } catch (error) {
+                console.log(error.message)
                 reject(error)
             }
         })
     }
 
-    async getItem<T>(route: string): Promise<T> {
-        return new Promise<T>(async (resolve, reject) => {
+    async getItem<T>(route: string): Promise<T | undefined> {
+        return new Promise<T | undefined>(async (resolve, reject) => {
             try {
-                const raw = await (await axios.get<any>(baseUrl(route))).data
-                resolve(raw)
+                const data = await axios.get<any | undefined>(baseUrl(route))
+                const raw = await data.data
+                definable.onDefined(raw, raw => {
+                    const keys = Object.keys(raw)
+                    if (keys.length === 1) {
+                        resolve(raw[keys[0]])
+                    } else if (keys.length === 0) {
+                        resolve(undefined)
+                    } else {
+                        resolve(raw)
+                    }
+                })
+
+                definable.onUndefined(raw, () => {
+                    reject(new Error('not found!'))
+                })
             } catch (error) {
+                console.log(error.message)
                 reject(error)
             }
         })
@@ -48,6 +57,7 @@ export class FirebaseRepository {
                 })
                 resolve(data)
             } catch (error) {
+                console.log(error.message)
                 reject(error)
             }
         })

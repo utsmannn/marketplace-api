@@ -1,7 +1,7 @@
 import { Product } from '../model';
 
 export function validatorDefineProduct(product: Product | undefined): Error | undefined {
-    if (product?.name === undefined) {
+    if (definable.isDefine(product?.name) === undefined) {
         return new Error('product `name` invalid!')
     } else if (product?.price === undefined) {
         return new Error('product `price` invalid!')
@@ -23,3 +23,23 @@ export function validatorTypeProduct(product: Product | undefined): Error | unde
         return
     }
 }
+
+class Definable {
+    isDefine<T>(value?: T): boolean {
+        return value !== undefined || value != null
+    }
+
+    onDefined<T>(value: T | undefined | null, defined: (define: T) => void) {
+        if (value != undefined || value != null) {
+            defined(value)
+        }
+    }
+
+    onUndefined<T>(value: T | undefined | null, defined: (define: T | undefined | null) => void) {
+        if (value === undefined || value === null) {
+            defined(value)
+        }
+    }
+}
+
+export const definable = new Definable()
