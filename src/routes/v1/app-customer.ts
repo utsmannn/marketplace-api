@@ -1,3 +1,4 @@
+import { CartRoutes } from './cart';
 import { Role } from '../../model';
 import { App } from "../../impl/app";
 import express, { Router } from "express"
@@ -16,6 +17,7 @@ export class CustomerV1 implements App {
     routing(path: string): Router {
         this.router.use('/' + path, this.user())
         this.router.use('/' + path, this.product())
+        this.router.use('/' + path, this.cart())
         return this.router
     }
 
@@ -26,5 +28,10 @@ export class CustomerV1 implements App {
     product(): Router {
         const product = new ProductRoutes()
         return this.router.use('/product', product.init(this.role))
+    }
+
+    cart(): Router {
+        const cart = new CartRoutes()
+        return this.router.use('/cart', cart.init())
     }
 }

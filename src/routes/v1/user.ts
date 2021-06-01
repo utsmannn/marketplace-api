@@ -6,7 +6,6 @@ import { UserRepository } from '../../repository/user-repository';
 
 export class UserRoutes {
     init(role: Role): Router {
-        console.log('route -> ' + role)
         const router = Router()
         const repository = new UserRepository(role)
 
@@ -28,15 +27,21 @@ export class UserRoutes {
             const findId = (req.query.sellerId as string | undefined) ?? (req.query.customerId as string | undefined) ?? userId
             switch (role) {
                 case Role.SELLER:
-                    const resultSeller = await auth('Get user', repository.findSeller(findId), authenticated)
+                    const resultSeller = await auth('Get user seller', authenticated, () => {
+                        return repository.findSeller(findId)
+                    })
                     res.status(resultSeller.code).send(resultSeller.data)
                     break;
                 case Role.CUSTOMER:
-                    const resultCustomer = await auth('Get user', repository.findCustomer(findId), authenticated)
+                    const resultCustomer = await auth('Get user customer', authenticated, () => {
+                        return repository.findCustomer(findId)
+                    })
                     res.status(resultCustomer.code).send(resultCustomer.data)
                     break;
                 default:
-                    const result = await auth('Get user', repository.findUser(findId), authenticated)
+                    const result = await auth('Get user', authenticated, () => {
+                        return repository.findUser(findId)
+                    })
                     res.status(result.code).send(result.data)
                     break;
             }

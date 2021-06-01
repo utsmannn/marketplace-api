@@ -54,11 +54,9 @@ export class ProductRepository {
     async productsSellerId(user: User | undefined): Promise<Product[]> {
         return new Promise<Product[]>(async (resolve, reject) => {
             try {
-                const data = await firebase.getItems<Product>('product')
-                const filtered = data.filter(item => {
-                    return item.sellerId === user?.id
-                })
-                resolve(filtered)
+                const query = `?orderBy="sellerId"&equalTo="${user?.id}"`
+                const data = await firebase.getItems<Product>('product', query)
+                resolve(data)
             } catch (error) {
                 if (error.message.includes('Cannot convert undefined or null to object')) {
                     resolve([])
@@ -72,15 +70,14 @@ export class ProductRepository {
     async productSellerId(id: string, user: User | undefined): Promise<Product> {
         return new Promise<Product>(async (resolve, reject) => {
             try {
-                const data = await firebase.getItems<Product>('product')
-                const filtered = data.filter(item => {
-                    return item.sellerId === user?.id
-                }).find(item => {
+                const query = `?orderBy="sellerId"&equalTo="${user?.id}"`
+                const data = await firebase.getItems<Product>('product', query)
+                const filtered = data.find(item => {
                     return item.id == id
                 })
 
                 if (filtered === undefined) {
-                    reject(new Error('product not found'))
+                    reject(new Error('product not found!'))
                 } else {
                     resolve(filtered)
                 }
@@ -115,7 +112,7 @@ export class ProductRepository {
                     if (user?.role === Role.CUSTOMER || data.sellerId != user?.id) {
                         reject(new Error('User not permission to edit product'))
                     } else {
-                        await firebase.update<Product>('product/' + id, product)
+                        await firebase.update('product/' + id, product)
                         const dataUpdate = await firebase.getItem<Product>('product/' + id)
                         resolve(dataUpdate)
                     }

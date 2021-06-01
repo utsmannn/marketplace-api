@@ -148,8 +148,8 @@ export class UserRepository {
                     const key = pushData.name
                     user.id = key
                     await firebase.update(this.role + '/' + key, user)
-                    const getData = await firebase.getItem<User>(this.role + '/' + key)
-                    resolve(getData)
+                    const data = await firebase.getItem<User>(this.role + '/' + key)
+                    resolve(data)
                 }
             } catch (error) {
                 reject(error)

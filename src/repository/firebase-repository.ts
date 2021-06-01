@@ -1,15 +1,23 @@
 import axios from 'axios';
 require('dotenv').config()
 
-function baseUrl(route: string): string {
-    return 'https://' + process.env.FIREBASE_ID + '.firebaseio.com/' + route + '.json?print=pretty'
+function baseUrl(route: string, query?: string): string {
+    var url = ''
+    if (query === undefined) {
+        url = 'https://' + process.env.FIREBASE_ID + '.firebaseio.com/' + route + '.json?print=pretty'
+    } else {
+        url = 'https://' + process.env.FIREBASE_ID + '.firebaseio.com/' + route + '.json' + query ?? '' + '?print=pretty'
+    }
+    console.log(url)
+    return url
 }
 
+
 export class FirebaseRepository {
-    async push<T>(route: string, param: any | null): Promise<T> {
+    async push<T>(route: string, param: any | null, query?: string): Promise<T> {
         return new Promise<T>(async (resolve, reject) => {
             try {
-                const data = await axios.post<T>(baseUrl(route), param)
+                const data = await axios.post<T>(baseUrl(route, query), param)
                 resolve(data.data)
             } catch (error) {
                 reject(error)
@@ -17,10 +25,10 @@ export class FirebaseRepository {
         })
     }
 
-    async update<T>(route: string, param: any | null): Promise<T> {
+    async update<T>(route: string, param: any | null, query?: string): Promise<T> {
         return new Promise<T>(async (resolve, reject) => {
             try {
-                const data = await axios.patch<T>(baseUrl(route), param)
+                const data = await axios.patch<T>(baseUrl(route, query), param)
                 resolve(data.data)
             } catch (error) {
                 reject(error)
@@ -28,21 +36,29 @@ export class FirebaseRepository {
         })
     }
 
-    async getItem<T>(route: string): Promise<T> {
+    async getItem<T>(route: string, query?: string): Promise<T> {
         return new Promise<T>(async (resolve, reject) => {
             try {
-                const raw = await (await axios.get<any>(baseUrl(route))).data
-                resolve(raw)
+                const raw = await axios.get<any>(baseUrl(route, query))
+                const data = await raw.data
+                const isEmpty = Object.entries(data).length === 0
+
+                if (isEmpty) {
+                    reject(new Error('items is empty'))
+                } else {
+                    resolve(data)
+                }
+                
             } catch (error) {
                 reject(error)
             }
         })
     }
 
-    async getItems<T>(route: string): Promise<T[]> {
+    async getItems<T>(route: string, query?: string): Promise<T[]> {
         return new Promise<T[]>(async (resolve, reject) => {
             try {
-                const raw = await (await axios.get<any>(baseUrl(route))).data
+                const raw = await (await axios.get<any>(baseUrl(route, query))).data
                 const data = Object.keys(raw).map(key => {
                     return raw[key]
                 })

@@ -55,3 +55,27 @@ export class Product {
         this.price = price
     }
 }
+
+export class ItemCartBody {
+    added: ItemCart[] = []
+    removed: ItemCart[] = []
+}
+
+export class ItemCart {
+    productId: string
+    quantity: number
+    constructor(productId: string, quantity: number) {
+        this.productId = productId
+        this.quantity = quantity
+    }
+}
+
+export class Cart {
+    id: string = ''
+    customerId: string
+    items: ItemCart[]
+    constructor(customerId: string, items: ItemCart[]) {
+        this.customerId = customerId
+        this.items = items
+    }
+}

@@ -17,7 +17,7 @@ export function validateHash(password: string, hash: string): boolean {
 }
 
 export function generateToken(user: User): string {
-    return jwt.sign(user, secret, { expiresIn: '1800s' }) // 30 minute
+    return jwt.sign(user, secret, { expiresIn: '2h' }) // 2 jam
 }
 
 export async function verifyToken(headers: NodeJS.Dict<string | string[]>, userRepo: UserRepository): Promise<Result> {
