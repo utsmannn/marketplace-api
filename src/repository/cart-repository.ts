@@ -76,18 +76,13 @@ export class CartRepository {
                                     try {
                                         const p = new Path('products/' + i.productId)
                                         const data = await firebase.getItem<Product>(p.url())
-                                        console.log('item products')
-                                        console.log(data)
                                         i.sellerId = data?.sellerId ?? 'unknown'
                                     } catch (error) {
-
                                     }
                                     return i
                                 })
                             )
 
-                            console.log('new')
-                            console.log(newItemWithSellerId)
                             if (newItem.length > 0) {
                                 cart.items = newItemWithSellerId
                             }

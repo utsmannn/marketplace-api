@@ -57,7 +57,6 @@ export class CartRoutes {
         const productId = req.query.productId;
         const quantity = req.query.quantity;
 
-
         const result = await verifyAuth('Add cart', req.headers, userRepository, (user) => {
             if (productId != undefined) {
                 const newBody = new ItemCart(productId as string, (quantity as number | undefined) ?? 1, '');
