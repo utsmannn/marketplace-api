@@ -24,6 +24,25 @@ export function validatorTypeProduct(product: Product | undefined): Error | unde
     }
 }
 
+export function required(any: any, ...required: string[]): boolean {
+    return required.every(r => {
+        const valid = Object.keys(any).includes(r)
+        return valid
+    })
+}
+
+export function requiredArrays(any: any, ...requiredKey: string[]): boolean {
+    const keys = Object.keys(any)
+    const isArray = required(keys, '0')
+
+    const isValid = keys.every(k => {
+        const obj = any[k]
+        const isOk = required(obj, ...requiredKey)
+        return isOk
+    })
+    return isValid
+}
+
 class Definable {
     isDefine<T>(value?: T): boolean {
         return value !== undefined || value != null
@@ -43,3 +62,23 @@ class Definable {
 }
 
 export const definable = new Definable()
+
+export function filterBy(data: any[], key: any): any[] {
+    return [
+        new Map(data.map(i => [key(i), i])).values()
+    ]
+}
+
+export function removeDuplicate(originalArray: any[], prop: any): any[] {
+    var newArray = [];
+    var lookupObject: any = {};
+
+    for(var i in originalArray) {
+       lookupObject[originalArray[i][prop]] = originalArray[i];
+    }
+
+    for(i in lookupObject) {
+        newArray.push(lookupObject[i]);
+    }
+     return newArray;
+}

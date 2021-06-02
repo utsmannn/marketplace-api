@@ -58,12 +58,13 @@ export class Product {
     }
 }
 
-export class ItemCartBulk {
-    added: ItemCart[] = []
-    removed: ItemCart[] = []
+export type ItemCartType = {
+    productId: string
+    quantity: number
+    sellerId: string
 }
 
-export class ItemCart {
+export class ItemCart implements ItemCartType {
     productId: string
     quantity: number
     sellerId: string
