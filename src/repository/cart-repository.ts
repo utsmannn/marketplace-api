@@ -46,9 +46,11 @@ export class CartRepository {
                                         const newQuantity = item.quantity
 
                                         if (operationType === OperationType.plus) {
-                                            sameItem.quantity = oldQuantity + newQuantity
+                                            const nQuality: number = (oldQuantity - 0) + (newQuantity - 0)
+                                            sameItem.quantity = nQuality
                                         } else {
-                                            sameItem.quantity = oldQuantity - newQuantity
+                                            const nQuality: number = (oldQuantity - 0) - (newQuantity - 0)
+                                            sameItem.quantity = nQuality
                                         }
                                         return sameItem
                                     } else {
@@ -66,19 +68,11 @@ export class CartRepository {
                             const added = addedPromise.filter(item => definable.isDefine(item))
                                 .filter(item => item!.quantity > 0) as ItemCart[]
 
-
                             const mergeItem = cart.items.concat(added)
-                            const newItem = removeDuplicate(mergeItem, 'productId').filter(i => i.quantity > 0)
+                            const newItem = removeDuplicate<ItemCart>(mergeItem, 'productId').filter(i => i.quantity > 0)
                             const newItemWithSellerId = await Promise.all(
                                 newItem.map(async i => {
-                                    console.log('item for id for')
-                                    console.log(i.productId)
-                                    try {
-                                        const p = new Path('products/' + i.productId)
-                                        const data = await firebase.getItem<Product>(p.url())
-                                        i.sellerId = data?.sellerId ?? 'unknown'
-                                    } catch (error) {
-                                    }
+                                    await this.setSellerId(i);
                                     return i
                                 })
                             )
@@ -87,14 +81,30 @@ export class CartRepository {
                                 cart.items = newItemWithSellerId
                             }
 
-                            const p = new Path('carts/' + cart.id)
-                            const data = firebase.push<Cart>(p.url(), cart)
-                            resolve(data)
+                            const pDelete = new Path('carts/' + cart.updatedAt)
+
+                            try {
+                                await firebase.delete(pDelete.url())
+                                cart.updatedAt = Date.now()
+                                const p = new Path('carts/' + cart.updatedAt)
+                                const data = firebase.push<Cart>(p.url(), cart)
+                                resolve(data)
+                            } catch (error) {
+                                reject(error)
+                            }
+
                         })
 
                         definable.onUndefined(currentCart, async () => {
-                            const cart = new Cart(user.id, bulk)
-                            const path = new Path('carts/' + cart.id)
+                            const newItem = await Promise.all(
+                                bulk.map(async i => {
+                                    await this.setSellerId(i);
+                                    return i
+                                })
+                            )
+                            const cart = new Cart(user.id, newItem)
+                            cart.updatedAt = Date.now()
+                            const path = new Path('carts/' + cart.updatedAt)
                             const data = await firebase.push<Cart>(path.url(), cart)
                             resolve(data)
                         })
@@ -113,8 +123,19 @@ export class CartRepository {
             } else {
                 reject(new Error('bulk body is invalid'))
             }
-
         })
     }
 
+
+    private async setSellerId(i: ItemCart) {
+        console.log('setup seller id')
+        console.log('item for id for');
+        console.log(i.productId);
+        try {
+            const p = new Path('products').orderBy('id', i.productId);
+            const data = await firebase.getItem<Product>(p.url());
+            i.sellerId = data?.sellerId ?? 'unknown';
+        } catch (error) {
+        }
+    }
 }

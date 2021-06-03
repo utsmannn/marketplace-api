@@ -32,12 +32,26 @@ export enum Role {
     SELLER = "seller"
 }
 
+export class PagingResult {
+    currentPage: number
+    nextPage: number | null
+    maxPage: number
+    products: Product[] = []
+    constructor(currentPage: number, nextPage: number | null, maxPage: number, products: Product[]) {
+        this.currentPage = currentPage
+        this.nextPage = nextPage
+        this.maxPage = maxPage
+        this.products = products
+    }
+}
+
 export class User {
     id: string = uuid()
     username: string
     password: string = ""
     expiredAt: number = new Date().getTime()
     role: Role
+    updatedAt: number = Date.now()
     constructor(username: string, role: Role) {
         this.username = username
         this.role = role
@@ -49,8 +63,10 @@ export class Product {
     name: string
     quantity: number
     price: number
-    addedAt: number = new Date().getTime()
+    addedAt: number = Date.now()
     sellerId: string = ''
+    updatedAt: number = Date.now()
+
     constructor(name: string, quantity: number, price: number) {
         this.name = name
         this.quantity = quantity
@@ -58,13 +74,7 @@ export class Product {
     }
 }
 
-export type ItemCartType = {
-    productId: string
-    quantity: number
-    sellerId: string
-}
-
-export class ItemCart implements ItemCartType {
+export class ItemCart {
     productId: string
     quantity: number
     sellerId: string
@@ -78,7 +88,9 @@ export class ItemCart implements ItemCartType {
 export class Cart {
     id: string = uuid()
     customerId: string
+    updatedAt: number  = Date.now()
     items: ItemCart[]
+    
     constructor(customerId: string, items: ItemCart[]) {
         this.customerId = customerId
         this.items = items

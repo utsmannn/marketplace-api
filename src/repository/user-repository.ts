@@ -32,10 +32,10 @@ export class UserRepository {
                 resolve(data)
             } catch (error) {
                 if (error.message.includes('Cannot convert undefined or null to object')) {
-                    resolve([])
-                } else {
-                    reject(error)
+                    error.message = 'user not found'
                 }
+
+                reject(error)
             }
         })
     }
@@ -43,7 +43,7 @@ export class UserRepository {
     async findUser(id: string, roleU: Role): Promise<User | null> {
         return new Promise<User>(async (resolve, reject) => {
             try {
-                const p = new path.Path('users/' + roleU + '/' + id)
+                const p = new path.Path('users/' + roleU).orderBy('id', id)
                 const user = await firebase.getItem<User>(p.url())
                 definable.onDefined(user, user => {
                     resolve(user)
@@ -54,10 +54,10 @@ export class UserRepository {
                 })
             } catch (error) {
                 if (error.message.includes('Cannot convert undefined or null to object')) {
-                    reject(new Error('user not found'))
-                } else {
-                    reject(error)
+                    error.message = 'user not found'
                 }
+
+                reject(error)
             }
         })
     }
@@ -84,10 +84,10 @@ export class UserRepository {
 
             } catch (error) {
                 if (error.message.includes('Cannot convert undefined or null to object')) {
-                    reject(new Error('user not found'))
-                } else {
-                    reject(error)
+                    error.message = 'user not found'
                 }
+
+                reject(error)
             }
         })
     }
@@ -95,11 +95,16 @@ export class UserRepository {
     async updateExpired(user: User, newExpired: number): Promise<User> {
         return new Promise<User>(async (resolve, reject) => {
             try {
-                const p = new path.Path('users/' + user.role + "/" + user.id).url()
+                const prevUpdatedAt = user.updatedAt
                 user.expiredAt = newExpired
-                const data = await firebase.push<User>(p, user)
+                const pNew = new path.Path('users/' + user.role + '/' + user.updatedAt).url()
+                const data = await firebase.push<any>(pNew, user)
+                console.log(data)
+                const p = new path.Path('users/' + user.role + '/' + prevUpdatedAt).url()
+                await firebase.delete(p)
                 resolve(data)
             } catch (error) {
+                console.log(error)
                 reject(error)
             }
         })
@@ -107,6 +112,7 @@ export class UserRepository {
 
     async newUser(username: string, password: string): Promise<User> {
         return new Promise<User>(async (resolve, reject) => {
+            console.log('try register...')
             try {
                 if (username === undefined) {
                     reject(Error('username must not be null'))
@@ -116,15 +122,19 @@ export class UserRepository {
                     var user = new User(username, this.role)
                     user.expiredAt = new Date().getTime() + 20000
                     user.password = hash(password)
+                    user.updatedAt = Date.now()
 
-                    const p = new path.Path('users/' + user.role + "/" + user.id).url()
+                    const p = new path.Path('users/' + user.role + '/' + user.updatedAt).url()
+                    console.log('urls.......')
+                    console.log(p)
                     const data = await firebase.push<User>(p, user)
                     resolve(data)
                 }
             } catch (error) {
+                console.log('anjiirrr')
+                console.log(error.message)
                 reject(error)
             }
         })
     }
-
 }

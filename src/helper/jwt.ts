@@ -50,7 +50,6 @@ export async function verifyToken(headers: NodeJS.Dict<string | string[]>, userR
                 const payload = jwt.verify(token, secret)
                 const user = payload as User
                 const userDb = await userRepo.findUser(user.id, user.role)
-
                 const tokenExp = extractExp(token)
 
                 if (userDb === null) {

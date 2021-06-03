@@ -63,13 +63,7 @@ class Definable {
 
 export const definable = new Definable()
 
-export function filterBy(data: any[], key: any): any[] {
-    return [
-        new Map(data.map(i => [key(i), i])).values()
-    ]
-}
-
-export function removeDuplicate(originalArray: any[], prop: any): any[] {
+export function removeDuplicate<T>(originalArray: any[], prop: any): T[] {
     var newArray = [];
     var lookupObject: any = {};
 

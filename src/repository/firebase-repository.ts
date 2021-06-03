@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { definable } from '../helper/validator';
-
 require('dotenv').config()
+
+const timeout = 15000
 
 function baseUrl(route: string): string {
     const url = 'https://' + process.env.FIREBASE_ID + '.firebaseio.com/' + route
@@ -13,7 +14,19 @@ export class FirebaseRepository {
     async push<T>(route: string, param: any | null): Promise<T> {
         return new Promise<T>(async (resolve, reject) => {
             try {
-                const data = await axios.patch<T>(baseUrl(route), param)
+                const data = await axios.patch<T>(baseUrl(route), param, { timeout: timeout })
+                resolve(data.data)
+            } catch (error) {
+                console.log(error.message)
+                reject(error)
+            }
+        })
+    }
+
+    async delete(route: string): Promise<boolean> {
+        return new Promise<boolean>(async (resolve, reject) => {
+            try {
+                const data = await axios.delete(baseUrl(route), { timeout: timeout })
                 resolve(data.data)
             } catch (error) {
                 console.log(error.message)
@@ -25,7 +38,7 @@ export class FirebaseRepository {
     async getItem<T>(route: string): Promise<T | undefined> {
         return new Promise<T | undefined>(async (resolve, reject) => {
             try {
-                const data = await axios.get<any | undefined>(baseUrl(route))
+                const data = await axios.get<any | undefined>(baseUrl(route), { timeout: timeout })
                 const raw = await data.data
                 definable.onDefined(raw, raw => {
                     const keys = Object.keys(raw)
@@ -51,10 +64,23 @@ export class FirebaseRepository {
     async getItems<T>(route: string): Promise<T[]> {
         return new Promise<T[]>(async (resolve, reject) => {
             try {
-                const raw = await (await axios.get<any>(baseUrl(route))).data
+                const raw = await (await axios.get<any>(baseUrl(route), { timeout: timeout })).data
                 const data = Object.keys(raw).map(key => {
                     return raw[key]
                 })
+                resolve(data)
+            } catch (error) {
+                console.log(error.message)
+                reject(error)
+            }
+        })
+    }
+
+    async getShallow(route: string): Promise<string[]> {
+        return new Promise<string[]>(async (resolve, reject) => {
+            try {
+                const raw = await (await axios.get<any>(baseUrl(route + '?shallow=true'), { timeout: timeout })).data
+                const data = Object.keys(raw).sort()
                 resolve(data)
             } catch (error) {
                 console.log(error.message)

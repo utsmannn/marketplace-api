@@ -10,24 +10,28 @@ export class ProductRoutes {
         const router = Router()
         const productRepository = new ProductRepository()
         const userRepository = new UserRepository(role)
+        const size = 10
 
         router.get('/', async (req, res) => {
+            const page = req.query.page as number | undefined
+            const size = req.query.size as number | undefined
+            
             const productId = req.query.productId as string | undefined
             const result = await verifyAuth<any>('Get product', req.headers, userRepository, (user) => {
                 if (user.role === Role.SELLER) {
                     if (productId != undefined) {
                         return productRepository.product(productId, user.id)
                     } else {
-                        return productRepository.products(user.id)
+                        return productRepository.productsPaging(page ?? 1, size ?? 10, user.id)
                     }
                 } else {
                     const sellerId = req.query.sellerId as string | undefined
                     if (sellerId != undefined) {
-                        return productRepository.products(sellerId)
+                        return productRepository.productsPaging(page ?? 1, size ?? 10, sellerId)
                     } else if (productId != undefined) {
                         return productRepository.product(productId)
                     } else {
-                        return productRepository.products()
+                        return productRepository.productsPaging(page ?? 1, size ?? 10)
                     }
                 }
             })
