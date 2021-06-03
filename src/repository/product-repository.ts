@@ -53,8 +53,6 @@ export class ProductRepository {
                         maxPage = 1
                     }
                     
-                    console.log('data...')
-                    console.log(data)
                     const offset = (page - 1) * size + 1
                     if (page <= maxPage) {
                         const dataPage = data.slice(offset-1, (offset-1) + size)
@@ -93,13 +91,7 @@ export class ProductRepository {
                     if (page <= maxPage) {
                         const keyStart = shallow[offset]
 
-                        console.log('keyStart')
-                        console.log(keyStart)
-
                         const dataPage = await firebase.getItems<Product>(p.page(keyStart, size))
-                        console.log('maxPage..')
-                        console.log('maxPage..')
-                        console.log(maxPage)
                         var nextPage: number | null = (page - 0) + 1
                         if (page == maxPage) {
                             nextPage = null
