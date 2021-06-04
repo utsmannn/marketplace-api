@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Path } from '../helper/constans-path';
 import { definable } from '../helper/validator';
 require('dotenv').config()
 
@@ -15,18 +16,6 @@ export class FirebaseRepository {
         return new Promise<T>(async (resolve, reject) => {
             try {
                 const data = await axios.patch<T>(baseUrl(route), param, { timeout: timeout })
-                resolve(data.data)
-            } catch (error) {
-                console.log(error.message)
-                reject(error)
-            }
-        })
-    }
-
-    async delete(route: string): Promise<boolean> {
-        return new Promise<boolean>(async (resolve, reject) => {
-            try {
-                const data = await axios.delete(baseUrl(route), { timeout: timeout })
                 resolve(data.data)
             } catch (error) {
                 console.log(error.message)

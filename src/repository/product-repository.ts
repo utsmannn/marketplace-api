@@ -24,7 +24,7 @@ export class ProductRepository {
                             product.id = uuid()
                             product.updatedAt = Date.now();
 
-                            const p = new Path('products' + '/' + product.updatedAt)
+                            const p = new Path('products' + '/' + product.id)
                             product.sellerId = user.id
                             const data = await firebase.push<Product>(p.url(), product)
                             resolve(data)
@@ -81,7 +81,7 @@ export class ProductRepository {
                     console.log('shallow')
                     console.log(shallow)
 
-                    const offset = (page - 1) * size + 1
+                    const offset = (page - 1) * size
                     var maxPage = Math.round(shallow.length / size)
 
                     if (shallow.length < size) {
@@ -111,50 +111,6 @@ export class ProductRepository {
                     }
                 }
             })
-        })
-    }
-
-    private async getKey(offset: number): Promise<string | undefined> {
-        console.log('offset..')
-        console.log(offset)
-        return new Promise<string | undefined>(async (resolve, reject) => {
-            try {
-                const pPage = new Path('products').orderBy('id')
-                const data = await firebase.getItems<Product>(pPage.page(undefined, offset + 1))
-                console.log('data key')
-                console.log(data)
-                if (data.length >= 1) {
-                    const key = data[0].id
-                    resolve(key)
-                } else {
-                    reject(new Error('undefined or null to object'))
-                }
-
-
-            } catch (error) {
-                reject(error)
-            }
-        })
-    }
-
-    private async getKeyOffset(key: string, offset: number): Promise<string | undefined> {
-        console.log('key..')
-        console.log(key)
-        return new Promise<string | undefined>(async (resolve, reject) => {
-            try {
-                const pPage = new Path('products').orderBy('id')
-                const data = await firebase.getItems<Product>(pPage.page(key, offset + 1))
-                console.log('data key')
-                console.log(data)
-                if (data.length >= 1) {
-                    const key = data[0].id
-                    resolve(key)
-                } else {
-                    reject(new Error('undefined or null to object'))
-                }
-            } catch (error) {
-                reject(error)
-            }
         })
     }
 
@@ -198,11 +154,9 @@ export class ProductRepository {
 
                     definable.onDefined(item, async item => {
                         if (item.sellerId === user.id) {
-                            const dDelete = new Path('products/' + item.updatedAt)
-                            await firebase.delete(dDelete.url())
                             item.updatedAt = Date.now()
                             const newProduct = this.mergeProduct(item, product)
-                            const pNew = new Path('products/' + newProduct.updatedAt)
+                            const pNew = new Path('products/' + newProduct.id)
 
                             const data = await firebase.push<Product>(pNew.url(), newProduct)
                             console.log('new data')

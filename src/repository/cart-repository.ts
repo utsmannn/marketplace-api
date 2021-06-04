@@ -81,12 +81,9 @@ export class CartRepository {
                                 cart.items = newItemWithSellerId
                             }
 
-                            const pDelete = new Path('carts/' + cart.updatedAt)
-
                             try {
-                                await firebase.delete(pDelete.url())
                                 cart.updatedAt = Date.now()
-                                const p = new Path('carts/' + cart.updatedAt)
+                                const p = new Path('carts/' + cart.id)
                                 const data = firebase.push<Cart>(p.url(), cart)
                                 resolve(data)
                             } catch (error) {
@@ -104,7 +101,7 @@ export class CartRepository {
                             )
                             const cart = new Cart(user.id, newItem)
                             cart.updatedAt = Date.now()
-                            const path = new Path('carts/' + cart.updatedAt)
+                            const path = new Path('carts/' + cart.id)
                             const data = await firebase.push<Cart>(path.url(), cart)
                             resolve(data)
                         })
