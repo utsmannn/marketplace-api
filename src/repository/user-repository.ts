@@ -3,7 +3,6 @@ import { User, Role } from './../model';
 import { FirebaseRepository } from './firebase-repository';
 import { generateToken, hash, validateHash } from "../helper/jwt"
 import { Path } from '../helper/constans-path'
-require('dotenv').config()
 
 const firebase = new FirebaseRepository()
 

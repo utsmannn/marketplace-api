@@ -7,8 +7,12 @@ https://marketplace-min-api.herokuapp.com/v1
 
 ## End point
 ### Customer
-*Register*
+1. Register
 ```
-GET /customer/user/register
+POST /customer/user/register
 ```
 
+2. Login
+```
+GET /customer/user/login
+```

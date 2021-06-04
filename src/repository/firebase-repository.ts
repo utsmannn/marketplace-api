@@ -1,7 +1,5 @@
 import axios from 'axios';
-import { Path } from '../helper/constans-path';
 import { definable } from '../helper/validator';
-require('dotenv').config()
 
 const timeout = 15000
 

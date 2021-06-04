@@ -5,7 +5,6 @@ import { User } from "../model"
 import jwt from 'jsonwebtoken';
 import { fetch } from './network';
 import { definable } from './validator';
-require('dotenv').config()
 
 const salt = process.env.SALT || ''
 const secret = process.env.SECRET || ''
