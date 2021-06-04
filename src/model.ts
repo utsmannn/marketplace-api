@@ -36,11 +36,15 @@ export class PagingResult {
     currentPage: number
     nextPage: number | null
     maxPage: number
+    totalSize: number
+    pageSize: number
     products: Product[] = []
-    constructor(currentPage: number, nextPage: number | null, maxPage: number, products: Product[]) {
+    constructor(currentPage: number, nextPage: number | null, maxPage: number, totalSize: number, pageSize: number, products: Product[]) {
         this.currentPage = currentPage
         this.nextPage = nextPage
         this.maxPage = maxPage
+        this.totalSize = totalSize
+        this.pageSize = pageSize
         this.products = products
     }
 }
@@ -95,4 +99,8 @@ export class Cart {
         this.customerId = customerId
         this.items = items
     }
+}
+
+export enum OperationType {
+    plus, minus
 }

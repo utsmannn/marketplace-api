@@ -10,7 +10,6 @@ export class ProductRoutes {
         const router = Router()
         const productRepository = new ProductRepository()
         const userRepository = new UserRepository(role)
-        const size = 10
 
         router.get('/', async (req, res) => {
             const page = req.query.page as number | undefined
@@ -50,8 +49,17 @@ export class ProductRoutes {
             router.patch('/', async (req, res) => {
                 const productId = req.query.productId as string | undefined
                 const product = req.body as Product | undefined
-                const result = await verifyAuth('Edit product', req.headers, userRepository, (user) => {
+                const result = await verifyAuth('Delete product', req.headers, userRepository, (user) => {
                     return productRepository.editProduct(productId, product, user)
+                })
+                res.status(result.code).send(result.data)
+            })
+
+            router.delete('/', async (req, res) => {
+                const productId = req.query.productId as string | undefined
+                const product = req.body as Product | undefined
+                const result = await verifyAuth('Edit product', req.headers, userRepository, (user) => {
+                    return productRepository.delete(productId, user.id)
                 })
                 res.status(result.code).send(result.data)
             })

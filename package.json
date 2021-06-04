@@ -9,8 +9,13 @@
     "dev": "clear && npm run build && tsnd --respawn ./src/server.ts",
     "start": "clear && npm run build && nodemon ./dist/src/server.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "marketplace", "marketplace-api", "firebase-api"
+  ],
+  "engines": {
+    "node": "16.1.0"
+  },
+  "author": "Muhammad Utsman",
   "license": "ISC",
   "dependencies": {
     "@types/axios": "^0.14.0",

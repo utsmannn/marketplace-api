@@ -24,6 +24,18 @@ export class FirebaseRepository {
         })
     }
 
+    async delete<T>(route: string): Promise<T> {
+        return new Promise<T>(async (resolve, reject) => {
+            try {
+                const data = await axios.delete<T>(baseUrl(route), { timeout: timeout })
+                resolve(data.data)
+            } catch (error) {
+                console.log(error.message)
+                reject(error)
+            }
+        })
+    }
+
     async getItem<T>(route: string): Promise<T | undefined> {
         return new Promise<T | undefined>(async (resolve, reject) => {
             try {

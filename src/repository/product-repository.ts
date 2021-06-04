@@ -41,6 +41,27 @@ export class ProductRepository {
         })
     }
 
+    async delete(productId: string | undefined, sellerId?: string): Promise<PagingResult | undefined> {
+        return new Promise<PagingResult | undefined>(async (resolve, reject) => {
+            try {
+                definable.onDefined(productId, async (productId) => {
+                    const p = new Path('products' + '/' + productId)
+                    const deleteData = await firebase.delete(p.url())
+                    console.log(deleteData)
+                    const data = await this.productsPaging(1, 10, sellerId)
+                    resolve(data)
+                })
+
+                definable.onUndefined(productId, () => {
+                    reject(new Error('productId not define'))
+                })
+                
+            } catch (error) {
+                reject(error)
+            }
+        })
+    }
+
     async productsPaging(page: number, size: number, sellerId?: string): Promise<PagingResult | undefined> {
         console.log('paging....')
         return new Promise<PagingResult | undefined>(async (resolve, reject) => {
@@ -61,7 +82,8 @@ export class ProductRepository {
                             nextPage = null
                         }
 
-                        const result = new PagingResult((page - 0), nextPage, maxPage, dataPage)
+                        const totalSize = data.length
+                        const result = new PagingResult((page - 0), nextPage, maxPage, totalSize, size, dataPage)
                         resolve(result)
                     } else {
                         reject(new Error('cannot get page more than ' + maxPage))
@@ -97,7 +119,8 @@ export class ProductRepository {
                             nextPage = null
                         }
 
-                        const result = new PagingResult((page - 0), nextPage, maxPage, dataPage)
+                        const totalSize = shallow.length
+                        const result = new PagingResult((page - 0), nextPage, maxPage, totalSize, size, dataPage)
                         resolve(result)
                     } else {
                         reject(new Error('cannot get page more than ' + maxPage))
@@ -119,18 +142,34 @@ export class ProductRepository {
             try {
                 const p = new Path('products').orderBy('id', id)
                 const data = await firebase.getItem<Product>(p.url())
+                console.log('sellerid')
+                console.log(sellerId)
 
-                definable.onDefined(data, data => {
-                    if (data.sellerId === sellerId) {
-                        resolve(data)
-                    } else {
+                definable.onDefined(sellerId, sellerId => {
+                    definable.onDefined(data, data => {
+                        if (data.sellerId === sellerId) {
+                            resolve(data)
+                        } else {
+                            reject(new Error('product not found!'))
+                        }
+                    })
+
+                    definable.onUndefined(data, () => {
                         reject(new Error('product not found!'))
-                    }
+                    })
                 })
 
-                definable.onUndefined(data, () => {
-                    reject(new Error('product not found!'))
+
+                definable.onUndefined(sellerId, () => {
+                    definable.onDefined(data, data => {
+                        resolve(data)
+                    })
+
+                    definable.onUndefined(data, () => {
+                        reject(new Error('product not found!'))
+                    })
                 })
+
             } catch (error) {
                 reject(error)
             }

@@ -34,12 +34,22 @@ export function required(any: any, ...required: string[]): boolean {
 export function requiredArrays(any: any, ...requiredKey: string[]): boolean {
     const keys = Object.keys(any)
     const isArray = required(keys, '0')
+    var isValid = false
 
-    const isValid = keys.every(k => {
-        const obj = any[k]
-        const isOk = required(obj, ...requiredKey)
-        return isOk
-    })
+    console.log(any)
+    console.log(isArray)
+    console.log(keys)
+
+    if (isArray) {
+        isValid = keys.every(k => {
+            const obj = any[k]
+            const isOk = required(obj, ...requiredKey)
+            return isOk
+        })
+    } else {
+        isValid = false
+    }
+
     return isValid
 }
 

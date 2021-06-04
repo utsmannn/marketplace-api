@@ -1,14 +1,11 @@
-import { ItemCart, Result } from './../../model';
-import { CartRepository, OperationType } from './../../repository/cart-repository';
+import { ItemCart, Result, OperationType } from './../../model';
+import { CartRepository } from './../../repository/cart-repository';
 import { Role } from '../../model';
 import { Router } from 'express'
 import { verifyAuth } from '../../helper/jwt';
-import { ProductRepository } from '../../repository/product-repository';
 import { UserRepository } from '../../repository/user-repository';
-import { required } from '../../helper/validator';
 
 const cartRepository = new CartRepository()
-const productRepository = new ProductRepository()
 const userRepository = new UserRepository(Role.CUSTOMER)
 
 export class CartRoutes {
@@ -24,12 +21,12 @@ export class CartRoutes {
         })
 
         router.post('/', async (req, res) => {
-            const result = await this.operationSingle(req, OperationType.plus);
+            const result = await this.operationSingle('Add cart', req, OperationType.plus);
             res.status(result.code).send(result.data)
         })
 
         router.delete('/', async (req, res) => {
-            const result = await this.operationSingle(req, OperationType.minus);
+            const result = await this.operationSingle('Delete cart', req, OperationType.minus);
             res.status(result.code).send(result.data)
         })
 
@@ -53,11 +50,11 @@ export class CartRoutes {
 
     }
 
-    async operationSingle(req: any, operationType: OperationType): Promise<Result> {
+    async operationSingle(context: string, req: any, operationType: OperationType): Promise<Result> {
         const productId = req.query.productId;
         const quantity = req.query.quantity;
 
-        const result = await verifyAuth('Add cart', req.headers, userRepository, (user) => {
+        const result = await verifyAuth(context, req.headers, userRepository, (user) => {
             if (productId != undefined) {
                 const newBody = new ItemCart(productId as string, (quantity as number | undefined) ?? 1, '');
                 return cartRepository.bulk(user, operationType, [newBody]);
