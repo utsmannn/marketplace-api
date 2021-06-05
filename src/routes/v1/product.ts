@@ -1,8 +1,6 @@
-import { definable } from './../../helper/validator';
-import { User } from './../../model';
 import { Role } from '../../model';
 import { Router } from 'express'
-import { verifyAuth, verifyAuthOptional, verifyToken } from '../../helper/jwt';
+import { verifyAuth, verifyAuthOptional } from '../../helper/jwt';
 import { Product } from '../../model';
 import { ProductRepository } from '../../repository/product-repository';
 import { UserRepository } from '../../repository/user-repository';
