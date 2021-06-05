@@ -18,16 +18,3 @@ export async function fetch<T>(contextValue: string, promise: Promise<T>): Promi
         }
     })
 }
-
-export async function auth<T>(contextValue: string, promise: Promise<T>, authenticated: Result): Promise<any> {
-    return new Promise<any>(async (resolve) => {
-        if (authenticated.data === undefined) {
-            const response = new Response(false, authenticated.message, null)
-            const result = new Result(response).error(authenticated.message, 401)
-            resolve(result)
-        } else {
-            const data = await fetch(contextValue, promise)
-            resolve(data)
-        }
-    })
-}

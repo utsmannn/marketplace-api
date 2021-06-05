@@ -1,51 +1,67 @@
 import { Role } from '../../model';
 import { Router } from 'express'
-import { verifyToken } from '../../helper/jwt';
-import { auth } from '../../helper/network';
-import { Product, User } from '../../model';
+import { verifyAuth, verifyAuthOptional } from '../../helper/jwt';
+import { Product } from '../../model';
 import { ProductRepository } from '../../repository/product-repository';
 import { UserRepository } from '../../repository/user-repository';
 
 export class ProductRoutes {
-    init(role: Role): Router {
+    route(role: Role): Router {
         const router = Router()
-        const repository = new ProductRepository()
+        const productRepository = new ProductRepository()
         const userRepository = new UserRepository(role)
 
         router.get('/', async (req, res) => {
-            const authenticated = await verifyToken(req.headers, userRepository)
-            const user = authenticated.data as User | undefined
-            const id = req.query.id as string | undefined
+            const page = req.query.page as number | undefined
+            const size = req.query.size as number | undefined
+            
+            const productId = req.query.productId as string | undefined
 
-            if (id === undefined) {
-                if (role === Role.SELLER) {
-                    const result = await auth('Get product', repository.productsSellerId(user), authenticated)
-                    res.status(result.code).send(result.data)
+            const result = await verifyAuthOptional<any>('Get product', req.headers, userRepository, (user) => {
+                if (user?.role === Role.SELLER) {
+                    if (productId != undefined) {
+                        return productRepository.product(productId, user.id)
+                    } else {
+                        return productRepository.productsPaging(page ?? 1, size ?? 10, user.id)
+                    }
                 } else {
-                    const result = await auth('Get product', repository.products(), authenticated)
-                    res.status(result.code).send(result.data)
+                    const sellerId = req.query.sellerId as string | undefined
+                    if (sellerId != undefined) {
+                        return productRepository.productsPaging(page ?? 1, size ?? 10, sellerId)
+                    } else if (productId != undefined) {
+                        return productRepository.product(productId)
+                    } else {
+                        return productRepository.productsPaging(page ?? 1, size ?? 10)
+                    }
                 }
-            } else {
-                const result = await auth('Get product by id', repository.productSellerId(id, user), authenticated)
-                res.status(result.code).send(result.data)
-            }
+            })
+            res.status(result.code).send(result.data)
         })
 
         if (role === Role.SELLER) {
             router.post('/', async (req, res) => {
                 const product = req.body as Product | undefined
-                const authenticated = await verifyToken(req.headers, userRepository)
-                const user = authenticated.data as User | undefined
-                const result = await auth('Push product', repository.push(product, user), authenticated)
+                const result = await verifyAuth('Add product', req.headers, userRepository, (user) => {
+                    return productRepository.push(product, user)
+                })
                 res.status(result.code).send(result.data)
             })
 
             router.patch('/', async (req, res) => {
+                const productId = req.query.productId as string | undefined
                 const product = req.body as Product | undefined
-                const id = req.query.id as string | undefined
-                const authenticated = await verifyToken(req.headers, userRepository)
-                const user = authenticated.data as User | undefined
-                const result = await auth('Patch product', repository.editProduct(id, product, user), authenticated)
+                const result = await verifyAuth('Delete product', req.headers, userRepository, (user) => {
+                    return productRepository.editProduct(productId, product, user)
+                })
+                res.status(result.code).send(result.data)
+            })
+
+            router.delete('/', async (req, res) => {
+                const productId = req.query.productId as string | undefined
+                const product = req.body as Product | undefined
+                const result = await verifyAuth('Edit product', req.headers, userRepository, (user) => {
+                    return productRepository.delete(productId, user.id)
+                })
                 res.status(result.code).send(result.data)
             })
         }

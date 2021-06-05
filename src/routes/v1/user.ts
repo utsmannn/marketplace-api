@@ -1,45 +1,54 @@
 import { Router } from 'express'
-import { verifyToken } from '../../helper/jwt';
-import { auth, fetch } from '../../helper/network';
-import { Role, User } from '../../model';
+import { verifyAuth } from '../../helper/jwt';
+import { fetch } from '../../helper/network';
+import { Role } from '../../model';
 import { UserRepository } from '../../repository/user-repository';
 
 export class UserRoutes {
-    init(role: Role): Router {
-        console.log('route -> ' + role)
+    route(role: Role): Router {
         const router = Router()
         const repository = new UserRepository(role)
 
-        router.get('/', async (req, res) => {
-            const authenticated = await verifyToken(req.headers, repository)
-            const userId = (authenticated.data as User | undefined)?.id
-            const sellerId = req.query.sellerId as string | undefined
-            const customerId = req.query.customerId as string | undefined
+        router.get('/all', async (req, res) => {
+            const result = await fetch('Get users', repository.users())
+            res.status(result.code).send(result.data)
+        })
 
-            var role: Role | undefined
-            if (sellerId != undefined) {
-                role = Role.SELLER
-            } else if (customerId != undefined) {
-                role = Role.CUSTOMER
+        router.get('/', async (req, res) => {
+            const customerIdQ = req.query.customerId as string | undefined
+            const sellerIdQ = req.query.sellerId as string | undefined
+
+            var roleFind: Role | undefined
+            if (sellerIdQ != undefined) {
+                roleFind = Role.SELLER
+            } else if (customerIdQ != undefined) {
+                roleFind = Role.CUSTOMER
             } else {
                 undefined
             }
 
-            const findId = (req.query.sellerId as string | undefined) ?? (req.query.customerId as string | undefined) ?? userId
-            switch (role) {
-                case Role.SELLER:
-                    const resultSeller = await auth('Get user', repository.findSeller(findId), authenticated)
-                    res.status(resultSeller.code).send(resultSeller.data)
-                    break;
-                case Role.CUSTOMER:
-                    const resultCustomer = await auth('Get user', repository.findCustomer(findId), authenticated)
-                    res.status(resultCustomer.code).send(resultCustomer.data)
-                    break;
-                default:
-                    const result = await auth('Get user', repository.findUser(findId), authenticated)
-                    res.status(result.code).send(result.data)
-                    break;
-            }
+            const result = await verifyAuth('Get user', req.headers, repository, (user) => {
+                const role = user.role
+                const userDefault = repository.findUser(user.id, role)
+                switch (roleFind) {
+                    case Role.SELLER:
+                        if (sellerIdQ != undefined) {
+                            return repository.findUser(sellerIdQ, roleFind)
+                        } else {
+                            return userDefault
+                        }
+                    case Role.CUSTOMER:
+                        if (customerIdQ != undefined) {
+                            return repository.findUser(customerIdQ, roleFind)
+                        } else {
+                            return userDefault
+                        }
+                    default:
+                        return userDefault
+                }
+            })
+
+            res.status(result.code).send(result.data)
         })
 
         router.post('/register', async (req, res) => {
@@ -50,6 +59,7 @@ export class UserRoutes {
         })
 
         router.post('/login', async (req, res) => {
+            console.log('login.....')
             const username = req.body.username
             const password = req.body.password
             const result = await fetch('Login', repository.login(username, password))

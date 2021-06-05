@@ -1,7 +1,7 @@
 import { Product } from '../model';
 
 export function validatorDefineProduct(product: Product | undefined): Error | undefined {
-    if (product?.name === undefined) {
+    if (definable.isDefine(product?.name) === undefined) {
         return new Error('product `name` invalid!')
     } else if (product?.price === undefined) {
         return new Error('product `price` invalid!')
@@ -22,4 +22,67 @@ export function validatorTypeProduct(product: Product | undefined): Error | unde
     } else {
         return
     }
+}
+
+export function required(any: any, ...required: string[]): boolean {
+    return required.every(r => {
+        const valid = Object.keys(any).includes(r)
+        return valid
+    })
+}
+
+export function requiredArrays(any: any, ...requiredKey: string[]): boolean {
+    const keys = Object.keys(any)
+    const isArray = required(keys, '0')
+    var isValid = false
+
+    console.log(any)
+    console.log(isArray)
+    console.log(keys)
+
+    if (isArray) {
+        isValid = keys.every(k => {
+            const obj = any[k]
+            const isOk = required(obj, ...requiredKey)
+            return isOk
+        })
+    } else {
+        isValid = false
+    }
+
+    return isValid
+}
+
+class Definable {
+    isDefine<T>(value?: T): boolean {
+        return value !== undefined || value != null
+    }
+
+    onDefined<T>(value: T | undefined | null, defined: (define: T) => void) {
+        if (value != undefined || value != null) {
+            defined(value)
+        }
+    }
+
+    onUndefined<T>(value: T | undefined | null, defined: (define: T | undefined | null) => void) {
+        if (value === undefined || value === null) {
+            defined(value)
+        }
+    }
+}
+
+export const definable = new Definable()
+
+export function removeDuplicate<T>(originalArray: any[], prop: any): T[] {
+    var newArray = [];
+    var lookupObject: any = {};
+
+    for(var i in originalArray) {
+       lookupObject[originalArray[i][prop]] = originalArray[i];
+    }
+
+    for(i in lookupObject) {
+        newArray.push(lookupObject[i]);
+    }
+     return newArray;
 }

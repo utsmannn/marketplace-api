@@ -1,6 +1,8 @@
+import { definable } from './../helper/validator';
 import { User, Role } from './../model';
 import { FirebaseRepository } from './firebase-repository';
 import { generateToken, hash, validateHash } from "../helper/jwt"
+import { Path } from '../helper/constans-path'
 require('dotenv').config()
 
 const firebase = new FirebaseRepository()
@@ -26,59 +28,36 @@ export class UserRepository {
     async users(): Promise<User[]> {
         return new Promise<User[]>(async (resolve, reject) => {
             try {
-                const data = await firebase.getItems<User>(this.role)
+                const data = await firebase.getItems<User>(new Path('users').url())
                 resolve(data)
             } catch (error) {
                 if (error.message.includes('Cannot convert undefined or null to object')) {
-                    resolve([])
-                } else {
-                    reject(error)
+                    error.message = 'user not found'
                 }
+
+                reject(error)
             }
         })
     }
 
-    async findUser(id: string | undefined): Promise<User | null> {
+    async findUser(id: string, roleU: Role): Promise<User | null> {
         return new Promise<User>(async (resolve, reject) => {
             try {
-                const user = await firebase.getItem<User>(this.role + '/' + id)
-                resolve(user)
-            } catch (error) {
-                if (error.message.includes('Cannot convert undefined or null to object')) {
-                    reject(new Error('user not found'))
-                } else {
-                    reject(error)
-                }
-            }
-        })
-    }
+                const p = new Path('users/' + roleU).orderBy('id', id)
+                const user = await firebase.getItem<User>(p.url())
+                definable.onDefined(user, user => {
+                    resolve(user)
+                })
 
-    async findSeller(id: string | undefined): Promise<User | null> {
-        return new Promise<User>(async (resolve, reject) => {
-            try {
-                const user = await firebase.getItem<User>(Role.SELLER + '/' + id)
-                resolve(user)
+                definable.onUndefined(user, () => {
+                    reject(new Error('user not found'))
+                })
             } catch (error) {
                 if (error.message.includes('Cannot convert undefined or null to object')) {
-                    reject(new Error('user not found'))
-                } else {
-                    reject(error)
+                    error.message = 'user not found'
                 }
-            }
-        })
-    }
 
-    async findCustomer(id: string | undefined): Promise<User | null> {
-        return new Promise<User>(async (resolve, reject) => {
-            try {
-                const user = await firebase.getItem<User>(Role.CUSTOMER + '/' + id)
-                resolve(user)
-            } catch (error) {
-                if (error.message.includes('Cannot convert undefined or null to object')) {
-                    reject(new Error('user not found'))
-                } else {
-                    reject(error)
-                }
+                reject(error)
             }
         })
     }
@@ -86,47 +65,42 @@ export class UserRepository {
     async login(username: string, password: string): Promise<any> {
         return new Promise<any>(async (resolve, reject) => {
             try {
-                const users = await firebase.getItems<User>(this.role)
-                var user = users.find(item => {
-                    return item.username === username
-                })
-
-                if (user?.username != username) {
-                    reject(Error('user invalid!'))
+                const p = new Path('users/' + this.role).orderBy('username', username).url()
+                const user = await firebase.getItem<User>(p)
+                const hashPassword = user?.password ?? ''
+                const isValid = validateHash(password, hashPassword)
+                if (isValid && user != undefined) {
+                    const token = generateToken(user, async exp => {
+                        if (exp != undefined) {
+                            await this.updateExpired(user, exp)
+                        }
+                    })
+                    resolve({
+                        token: token
+                    })
                 } else {
-                    const userUpdate = await this.updateExpired(user)
-                    const hashPassword = userUpdate?.password ?? ''
-                    const isValid = validateHash(password, hashPassword)
-                    if (isValid) {
-                        const token = generateToken(userUpdate)
-                        resolve({
-                            token: token
-                        })
-                    } else {
-                        reject(Error('password invalid!'))
-                    }
+                    reject(Error('password invalid!'))
                 }
 
             } catch (error) {
                 if (error.message.includes('Cannot convert undefined or null to object')) {
-                    reject(new Error('user not found'))
-                } else {
-                    reject(error)
+                    error.message = 'user not found'
                 }
+
+                reject(error)
             }
         })
     }
 
-    async updateExpired(user: User): Promise<User> {
+    async updateExpired(user: User, newExpired: number): Promise<User> {
         return new Promise<User>(async (resolve, reject) => {
             try {
-                const path = user.role + '/' + user.id
-                await firebase.update(path, {
-                    expiredAt: new Date().getTime()
-                })
-                const data = await firebase.getItem<User>(path)
+                user.expiredAt = newExpired
+                const pNew = new Path('users/' + user.role + '/' + user.id).url()
+                const data = await firebase.push<any>(pNew, user)
                 resolve(data)
             } catch (error) {
+                console.log(error)
                 reject(error)
             }
         })
@@ -134,6 +108,7 @@ export class UserRepository {
 
     async newUser(username: string, password: string): Promise<User> {
         return new Promise<User>(async (resolve, reject) => {
+            console.log('try register...')
             try {
                 if (username === undefined) {
                     reject(Error('username must not be null'))
@@ -143,18 +118,22 @@ export class UserRepository {
                     var user = new User(username, this.role)
                     user.expiredAt = new Date().getTime() + 20000
                     user.password = hash(password)
+                    user.updatedAt = Date.now()
 
-                    const pushData = await firebase.push<any>(this.role + '', user)
-                    const key = pushData.name
-                    user.id = key
-                    await firebase.update(this.role + '/' + key, user)
-                    const getData = await firebase.getItem<User>(this.role + '/' + key)
-                    resolve(getData)
+                    const p = new Path('users/' + user.role + '/' + user.id).url()
+                    console.log('urls.......')
+                    console.log(p)
+                    const data = await firebase.push<User>(p, user)
+                    resolve(data)
                 }
             } catch (error) {
+                console.log('anjiirrr')
+                const salt = process.env.SALT
+                console.log("salt")
+                console.log(salt)
+                console.log(error.message)
                 reject(error)
             }
         })
     }
-
 }
