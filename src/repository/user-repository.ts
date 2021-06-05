@@ -128,6 +128,9 @@ export class UserRepository {
                 }
             } catch (error) {
                 console.log('anjiirrr')
+                const salt = process.env.SALT
+                console.log("salt")
+                console.log(salt)
                 console.log(error.message)
                 reject(error)
             }
