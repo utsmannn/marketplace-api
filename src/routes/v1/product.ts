@@ -1,6 +1,8 @@
+import { definable } from './../../helper/validator';
+import { User } from './../../model';
 import { Role } from '../../model';
 import { Router } from 'express'
-import { verifyAuth } from '../../helper/jwt';
+import { verifyAuth, verifyAuthOptional, verifyToken } from '../../helper/jwt';
 import { Product } from '../../model';
 import { ProductRepository } from '../../repository/product-repository';
 import { UserRepository } from '../../repository/user-repository';
@@ -16,8 +18,9 @@ export class ProductRoutes {
             const size = req.query.size as number | undefined
             
             const productId = req.query.productId as string | undefined
-            const result = await verifyAuth<any>('Get product', req.headers, userRepository, (user) => {
-                if (user.role === Role.SELLER) {
+
+            const result = await verifyAuthOptional<any>('Get product', req.headers, userRepository, (user) => {
+                if (user?.role === Role.SELLER) {
                     if (productId != undefined) {
                         return productRepository.product(productId, user.id)
                     } else {

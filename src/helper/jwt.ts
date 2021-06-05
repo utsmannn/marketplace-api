@@ -5,6 +5,7 @@ import { User } from "../model"
 import jwt from 'jsonwebtoken';
 import { fetch } from './network';
 import { definable } from './validator';
+require('dotenv').config()
 
 const salt = process.env.SALT || ''
 const secret = process.env.SECRET || ''
@@ -100,5 +101,34 @@ export async function verifyAuth<T>(
                 resolve(result)
             })
         })
-        
+}
+
+export async function verifyAuthOptional<T>(
+    context: string,
+    headers: NodeJS.Dict<string | string[]>,
+    userRepo: UserRepository,
+    promise: (user?: User) => Promise<T | null | undefined>):
+    Promise<Result> {
+        const authenticated = await verifyToken(headers, userRepo)
+        return new Promise<any>(async (resolve, reject) => {
+
+            definable.onDefined(authenticated.data, async (d) => {
+                try {
+                    const user = d as User
+                    const data = await fetch(context, promise(user))
+                    resolve(data)
+                } catch (error) {
+                    reject(error)
+                }
+            })
+
+            definable.onUndefined(authenticated.data, async () => {
+                try {
+                    const data = await fetch(context, promise(undefined))
+                    resolve(data)
+                } catch (error) {
+                    reject(error)
+                }
+            })
+        })
 }
