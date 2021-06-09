@@ -22,12 +22,13 @@ https://marketplace-min-api.herokuapp.com/v1
 
 ### Customer - Register
 
+`POST /customer/user/register`
 Body
 
 ```json
 {
-	"username": "niar",
-	"password": "1234"
+  "username": "niar",
+  "password": "1234"
 }
 ```
 
@@ -50,12 +51,13 @@ Response
 
 ### Customer - Login
 
+`POST /customer/user/login`
 Body
 
 ```json
 {
-	"username": "user-1",
-	"password": "1234"
+  "username": "user-1",
+  "password": "1234"
 }
 ```
 
@@ -73,6 +75,8 @@ Response
 
 ### Customer - Get User info
 
+`GET /customer/user`
+`HEADER Authorization Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVkQXQiOjE2MjI....`
 Response
 
 ```json
@@ -92,6 +96,7 @@ Response
 
 ### Customer - Get products
 
+`GET /customer/products`
 Response
 
 ```json
@@ -168,6 +173,7 @@ Response
 
 ### Customer - Get product by Id
 
+`GET /customer/product?productId=374b684c-2f9c-4aeb-8343-d709120ecb19`
 Response
 
 ```json
@@ -186,6 +192,9 @@ Response
 ```
 
 ### Customer - Get cart
+
+`GET /customer/cart`
+`HEADER Authorization Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVkQXQiOjE2MjI....`
 
 Response
 
@@ -214,7 +223,8 @@ Response
 ```
 
 ### Customer - Add product to cart
-
+`POST /customer/cart?productId=374b684c-2f9c-4aeb-8343-d709120ecb19&quantity=2`
+`HEADER Authorization Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVkQXQiOjE2MjI....`
 Response
 
 ```json
