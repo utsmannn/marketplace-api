@@ -24,7 +24,7 @@ https://marketplace-min-api.herokuapp.com/v1
 
 Body
 
-```
+```json
 {
 	"username": "niar",
 	"password": "1234"
@@ -33,7 +33,7 @@ Body
 
 Response
 
-```
+```json
 {
   "success": true,
   "message": "Add user success!",
@@ -52,7 +52,7 @@ Response
 
 Body
 
-```
+```json
 {
 	"username": "user-1",
 	"password": "1234"
@@ -61,7 +61,7 @@ Body
 
 Response
 
-```
+```json
 {
   "success": true,
   "message": "Login success!",
@@ -75,7 +75,7 @@ Response
 
 Response
 
-```
+```json
 {
   "success": true,
   "message": "Get user success!",
@@ -94,7 +94,7 @@ Response
 
 Response
 
-```
+```json
 {
   "success": true,
   "message": "Get product success!",
@@ -170,7 +170,7 @@ Response
 
 Response
 
-```
+```json
 {
   "success": true,
   "message": "Get product success!",
@@ -185,11 +185,11 @@ Response
 }
 ```
 
-### Customer - Getting cart
+### Customer - Get cart
 
 Response
 
-```
+```json
 {
   "success": true,
   "message": "Get cart success!",
@@ -213,11 +213,11 @@ Response
 }
 ```
 
-### Customer - Add products to cart
+### Customer - Add product to cart
 
 Response
 
-```
+```json
 {
   "success": true,
   "message": "Add cart success!",
