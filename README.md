@@ -378,7 +378,7 @@ Response
 
 ## Seller Examples
 
-### Customer - Register
+### Seller - Register
 
 ```
 POST /seller/user/register
@@ -410,7 +410,7 @@ Response
 }
 ```
 
-### Customer - Login
+### Seller - Login
 
 ```
 POST /seller/user/login
