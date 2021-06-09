@@ -22,7 +22,10 @@ https://marketplace-min-api.herokuapp.com/v1
 
 ### Customer - Register
 
-`POST /customer/user/register`
+```
+POST /customer/user/register
+```
+
 Body
 
 ```json
@@ -51,7 +54,10 @@ Response
 
 ### Customer - Login
 
-`POST /customer/user/login`
+```
+POST /customer/user/login
+```
+
 Body
 
 ```json
@@ -75,8 +81,11 @@ Response
 
 ### Customer - Get User info
 
-`GET /customer/user`
-`HEADER Authorization Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVkQXQiOjE2MjI....`
+```
+GET /customer/user
+HEADER Authorization Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVkQXQiOjE2MjI....
+```
+
 Response
 
 ```json
@@ -96,7 +105,10 @@ Response
 
 ### Customer - Get products
 
-`GET /customer/products`
+```
+GET /customer/products
+```
+
 Response
 
 ```json
@@ -173,7 +185,10 @@ Response
 
 ### Customer - Get product by Id
 
-`GET /customer/product?productId=374b684c-2f9c-4aeb-8343-d709120ecb19`
+```
+GET /customer/product?productId=374b684c-2f9c-4aeb-8343-d709120ecb19
+```
+
 Response
 
 ```json
@@ -193,8 +208,10 @@ Response
 
 ### Customer - Get cart
 
-`GET /customer/cart`
-`HEADER Authorization Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVkQXQiOjE2MjI....`
+```
+GET /customer/cart
+HEADER Authorization Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVkQXQiOjE2MjI....
+```
 
 Response
 
@@ -223,8 +240,11 @@ Response
 ```
 
 ### Customer - Add product to cart
-`POST /customer/cart?productId=374b684c-2f9c-4aeb-8343-d709120ecb19&quantity=2`
-`HEADER Authorization Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVkQXQiOjE2MjI....`
+```
+POST /customer/cart?productId=374b684c-2f9c-4aeb-8343-d709120ecb19&quantity=2
+HEADER Authorization Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVkQXQiOjE2MjI....
+```
+
 Response
 
 ```json
