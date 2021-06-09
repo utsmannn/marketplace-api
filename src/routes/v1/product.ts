@@ -5,6 +5,7 @@ import { Product } from '../../model';
 import { ProductRepository } from '../../repository/product-repository';
 import { UserRepository } from '../../repository/user-repository';
 
+
 export class ProductRoutes {
     route(role: Role): Router {
         const router = Router()
@@ -14,7 +15,7 @@ export class ProductRoutes {
         router.get('/', async (req, res) => {
             const page = req.query.page as number | undefined
             const size = req.query.size as number | undefined
-            
+
             const productId = req.query.productId as string | undefined
 
             const result = await verifyAuthOptional<any>('Get product', req.headers, userRepository, (user) => {
@@ -58,7 +59,6 @@ export class ProductRoutes {
 
             router.delete('/', async (req, res) => {
                 const productId = req.query.productId as string | undefined
-                const product = req.body as Product | undefined
                 const result = await verifyAuth('Edit product', req.headers, userRepository, (user) => {
                     return productRepository.delete(productId, user.id)
                 })
