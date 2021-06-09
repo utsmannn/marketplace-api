@@ -10,8 +10,8 @@ https://marketplace-min-api.herokuapp.com/v1
 
 | Name     | endpoint                  | method | authentication | example                       |
 | -------- | ------------------------- | ------ | -------------- | ----------------------------- |
-| Register | `/customer/user/register` | `POST` | no             | [example](/customer-register) |
-| Register | `/customer/user/login`    | `POST` | no             | [example](/customer-login)    |
+| Register | `/customer/user/register` | `POST` | no             | [example](#customer-register) |
+| Register | `/customer/user/login`    | `POST` | no             | [example](#customer-login)    |
 
 ## Examples
 
