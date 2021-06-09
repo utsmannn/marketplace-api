@@ -1,4 +1,4 @@
-# Marketplace minimal API
+# Marketplace Minimal API
 
 ## Base url
 
@@ -6,7 +6,8 @@
 https://marketplace-min-api.herokuapp.com/v1
 ```
 
-## Customer
+## Table endpoints
+### Customer
 
 | Name                       | Endpoint                                                    | Method   | Bearer token | Body and response                                  |
 | -------------------------- | ----------------------------------------------------------- | -------- | ------------ | -------------------------------------------------- |
@@ -20,7 +21,7 @@ https://marketplace-min-api.herokuapp.com/v1
 | Delete product in cart     | `/customer/cart?productId={product-id}&quantity={quantity}` | `DELETE` | yes          | [example](#customer---delete-product-in-cart)      |
 | Add product to cart (bulk) | `/customer/cart/bulk`                                       | `POST`   | yes          | [example](#customer---add-product-to-cart-by-bulk) |
 
-## Seller
+### Seller
 
 | Name              | Endpoint                                 | Method   | Bearer token | Body and response                      |
 | ----------------- | ---------------------------------------- | -------- | ------------ | -------------------------------------- |
@@ -33,8 +34,18 @@ https://marketplace-min-api.herokuapp.com/v1
 | Edit product      | `/seller/product?productId={product-id}` | `PATCH`  | yes          | [example](#seller---edit-product)      |
 | Delete product    | `/seller/product?productId={product-id}` | `DELETE` | yes          | [example](#seller---delete-product)    |
 
-## Customer Examples
+## Run on localhost
+- Setup your firebase
+- Setup environment from `.env.temp`
+- Run `npm install`
+- Run `npm run dev`
 
+## Insomnia collection
+Import file `insomnia-marketplace-collection.json` to your Insomnia (I hate postman wkwk), and setup  your environment collection.
+
+---
+
+## Customer Examples
 ### Customer - Register
 
 ```
