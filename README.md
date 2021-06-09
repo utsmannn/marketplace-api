@@ -7,15 +7,18 @@ https://marketplace-min-api.herokuapp.com/v1
 ```
 
 ## Customer
-### Register
-```
-POST /customer/user/register
-```
-Register new customer
 
-#### Example
+| Name     | endpoint                  | method | authentication | example                       |
+| -------- | ------------------------- | ------ | -------------- | ----------------------------- |
+| Register | `/customer/user/register` | `POST` | no             | [example](/customer-register) |
+| Register | `/customer/user/login`    | `POST` | no             | [example](/customer-login)    |
+
+## Examples
+
+### Customer - Register
 
 Body
+
 ```
 {
 	"username": "niar",
@@ -24,6 +27,7 @@ Body
 ```
 
 Response
+
 ```
 {
   "success": true,
@@ -38,17 +42,11 @@ Response
   }
 }
 ```
----
 
-### Login
-```
-POST /customer/user/login
-```
-Login account
-
-#### Example
+### Customer - Login
 
 Body
+
 ```
 {
 	"username": "user-1",
@@ -57,6 +55,7 @@ Body
 ```
 
 Response
+
 ```
 {
   "success": true,
@@ -68,4 +67,3 @@ Response
 ```
 
 ---
-
